@@ -62,7 +62,7 @@ jobs:
         run: unzip release.zip
 
       - name: Login to Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           auth-type: oidc
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
