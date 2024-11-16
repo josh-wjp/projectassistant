@@ -3,30 +3,27 @@ name: Docker Image Publish
 on:
   push:
     branches:
-    - main
+      - main
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Azure Container Registry Login
-      uses: Azure/docker-login@v2
-      with:
-        # Container registry username
-        username: ${{ secrets.PROJECTASSISTANT_ACR_USERNAME }}
-        # Container registry password
-        password: ${{ secrets.PROJECTASSISTANT_ACR_PASSWORD }}
-        # Container registry server url
-        login-server: sampleappaoaichatgpt.azurecr.io
-        
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run:         
-        docker build . --file WebApp.Dockerfile --tag sampleappaoaichatgpt.azurecr.io/sample-app-aoai-chatgpt:$(date +'%Y-%m-%d')_$GITHUB_RUN_NUMBER;
-        docker tag sampleappaoaichatgpt.azurecr.io/sample-app-aoai-chatgpt:$(date +'%Y-%m-%d')_$GITHUB_RUN_NUMBER sampleappaoaichatgpt.azurecr.io/sample-app-aoai-chatgpt:latest;
-        docker push sampleappaoaichatgpt.azurecr.io/sample-app-aoai-chatgpt:$(date +'%Y-%m-%d')_$GITHUB_RUN_NUMBER;
-        docker push sampleappaoaichatgpt.azurecr.io/sample-app-aoai-chatgpt:latest;
-      
+      - name: Azure Container Registry Login
+        uses: Azure/docker-login@v2
+        with:
+          username: ${{ secrets.PROJECTASSISTANT_ACR_USERNAME }}
+          password: ${{ secrets.PROJECTASSISTANT_ACR_PASSWORD }}
+          login-server: ${{ secrets.PROJECTASSISTANT_ACR_LOGIN_SERVER }}
+
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Build and Push Docker Image
+        run: |
+          # Replace with your new ACR login server and repository name
+          docker build . --file WebApp.Dockerfile --tag ${{ secrets.PROJECTASSISTANT_ACR_LOGIN_SERVER }}/projectassistant:$(date +'%Y-%m-%d')_$GITHUB_RUN_NUMBER
+          docker tag ${{ secrets.PROJECTASSISTANT_ACR_LOGIN_SERVER }}/projectassistant:$(date +'%Y-%m-%d')_$GITHUB_RUN_NUMBER ${{ secrets.PROJECTASSISTANT_ACR_LOGIN_SERVER }}/projectassistant:latest
+          docker push ${{ secrets.PROJECTASSISTANT_ACR_LOGIN_SERVER }}/projectassistant:$(date +'%Y-%m-%d')_$GITHUB_RUN_NUMBER
+          docker push ${{ secrets.PROJECTASSISTANT_ACR_LOGIN_SERVER }}/projectassistant:latest
