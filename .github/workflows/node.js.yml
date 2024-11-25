@@ -52,7 +52,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: frontend-app
-          path: ../static.zip
+          path: static.zip
 
   deploy:
     runs-on: ubuntu-latest
