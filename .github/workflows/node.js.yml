@@ -18,25 +18,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Node.js environment
+      # Set up Node.js environment without caching for now
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: 'projectassistant/frontend/package-lock.json'
 
       # Install dependencies in 'frontend' folder
       - name: Install dependencies
-        run: npm ci
-        # Explicitly specify the path to the 'frontend' folder
-        working-directory: projectassistant/frontend
+        run: npm ci --prefix projectassistant/frontend
 
-      # Build the project
+      # Build the project in 'frontend' folder
       - name: Build project
-        run: NODE_OPTIONS=--max_old_space_size=8192 npm run build
-        # Specify the path to the 'frontend' folder explicitly
-        working-directory: projectassistant/frontend
+        run: NODE_OPTIONS=--max_old_space_size=8192 npm run build --prefix projectassistant/frontend
 
       # Verify the static directory exists
       - name: Verify static directory
