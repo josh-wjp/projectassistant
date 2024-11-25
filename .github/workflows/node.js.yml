@@ -31,25 +31,17 @@ jobs:
 
     # Debugging Step: List all files in the entire project directory
     - name: List entire project directory
-      run: ls -R ../
+      run: ls -R
 
-    # Debugging Step: List contents of static directory
+    # Debugging Step: List contents of static directory to verify the output
     - name: List static directory
-      run: ls -al ../static
+      run: ls -al ./static
 
-    # Create a ZIP file from the static directory
-    - name: Zip static directory
-      run: zip -r ../static.zip ../static
-
-    # List ZIP file to verify it's present
-    - name: List zip file
-      run: ls -al ../
-
-    # Deploy the ZIP file to Azure Web App
+    # Deploy the static directory to Azure Web App
     - name: Deploy to Azure Web App
       if: github.ref == 'refs/heads/main'
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'project-assistant'  # Replace with your Azure App Service name
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ../static.zip
+        package: ./static
