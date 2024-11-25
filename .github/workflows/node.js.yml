@@ -15,9 +15,10 @@ jobs:
 
     # Debugging Step: Verify if package-lock.json exists in the frontend directory before setting up Node.js
     - name: Verify package-lock.json exists
-      run: ls -al projectassistant/frontend/package-lock.json || echo "package-lock.json not found!"
+      working-directory: projectassistant
+      run: ls -al frontend/package-lock.json || echo "package-lock.json not found!"
 
-    # Set up Node.js in the context of 'projectassistant/frontend' (simplified cache setup for now)
+    # Set up Node.js for the project
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
@@ -39,11 +40,13 @@ jobs:
 
     # Debugging Step: List the entire project directory after the build
     - name: List entire project directory after build
-      run: ls -R projectassistant
+      working-directory: projectassistant
+      run: ls -R
 
     # Debugging Step: Verify that 'static' directory exists
     - name: List static directory contents
-      run: ls -al projectassistant/static || echo "Static directory not found!"
+      working-directory: projectassistant
+      run: ls -al static || echo "Static directory not found!"
 
     # Deploy the static directory to Azure Web App
     - name: Deploy to Azure Web App
