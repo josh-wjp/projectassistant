@@ -27,15 +27,18 @@ jobs:
       run: npm ci
 
     - name: Build Project
-      run: NODE_OPTIONS=--max_old_space_size=8192 npm run build
+      run: |
+        echo "Starting build process..."
+        NODE_OPTIONS=--max_old_space_size=8192 npm run build
+        echo "Build process completed."
 
-    # Debugging Step: List all files in the entire project directory
-    - name: List entire project directory
-      run: ls -R
+    # Debugging Step: List the entire project directory to see if static was created anywhere
+    - name: List entire project directory after build
+      run: ls -R ../
 
-    # Debugging Step: List contents of static directory to verify the output
-    - name: List static directory
-      run: ls -al ./static
+    # Debugging Step: Verify that static directory exists at root level
+    - name: List static directory contents
+      run: ls -al ../static || echo "Static directory not found!"
 
     # Deploy the static directory to Azure Web App
     - name: Deploy to Azure Web App
@@ -44,4 +47,4 @@ jobs:
       with:
         app-name: 'project-assistant'  # Replace with your Azure App Service name
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ./static
+        package: ../static
