@@ -12,7 +12,6 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x]
-        # Set Node.js version, you can extend the matrix if you want to test multiple versions
 
     steps:
       # Checkout the repository
@@ -44,14 +43,14 @@ jobs:
       - name: Create deployment zip
         run: |
           cd projectassistant/static
-          zip -r ../../static.zip .
+          zip -r ../static.zip .
 
       # Upload the deployment package as an artifact
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
         with:
           name: frontend-app
-          path: static.zip
+          path: projectassistant/static.zip
 
   deploy:
     runs-on: ubuntu-latest
