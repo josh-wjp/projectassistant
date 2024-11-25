@@ -9,45 +9,50 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     strategy:
       matrix:
         node-version: [18.x]
+        # Set Node.js version, you can extend the matrix if you want to test multiple versions
 
     steps:
       # Checkout the repository
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      # Set up Node.js environment without caching for now
-      - name: Set up Node.js
+      # Set up Node.js environment
+      - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
 
-      # Install dependencies in 'frontend' folder using npm install instead of npm ci
+      # Install dependencies
       - name: Install dependencies
-        run: npm install --prefix projectassistant/frontend
+        run: npm ci
 
-      # Build the project in 'frontend' folder
+      # Build the project
       - name: Build project
-        run: NODE_OPTIONS=--max_old_space_size=8192 npm run build --prefix projectassistant/frontend
+        run: NODE_OPTIONS=--max_old_space_size=8192 npm run build
 
-      # Verify the static directory exists
+      # Verify static directory is created successfully
       - name: Verify static directory
-        run: ls -al projectassistant/static || echo "Static directory not found!"
+        run: ls -al ../static || echo "Static directory not found!"
 
-      # Create a deployment zip from the static folder
+      # Create zip for deployment
       - name: Create deployment zip
         run: |
-          cd projectassistant/static
-          zip -r ../../static.zip .
+          cd ../static
+          zip -r ../static.zip .
 
       # Upload the deployment package as an artifact
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
         with:
           name: frontend-app
-          path: projectassistant/static.zip
+          path: ../static.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -56,7 +61,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write  # Required for requesting the JWT
+      id-token: write  # This is required for requesting the JWT
 
     steps:
       # Download the artifact from the build job
@@ -65,9 +70,9 @@ jobs:
         with:
           name: frontend-app
 
-      # Unzip the downloaded artifact in 'projectassistant' directory
+      # Unzip the downloaded artifact
       - name: Unzip artifact for deployment
-        run: unzip static.zip -d projectassistant
+        run: unzip static.zip
 
       # Login to Azure using Service Principal
       - name: Login to Azure using Service Principal
@@ -76,7 +81,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       # Set Azure Subscription explicitly
-      - name: Set Azure Subscription
+      - name: Set Azure Subscription explicitly
         run: az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       # Deploy to Azure Web App
@@ -86,4 +91,4 @@ jobs:
         with:
           app-name: 'project-assistant'
           slot-name: 'production'
-          package: projectassistant
+          package: .
