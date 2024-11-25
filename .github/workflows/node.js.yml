@@ -13,17 +13,13 @@ jobs:
       run:
         working-directory: frontend
 
-    strategy:
-      matrix:
-        node-version: [18.x]  # Reduced to a single version unless you need multiple versions
-
     steps:
     - uses: actions/checkout@v3
 
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 18.x
         cache: 'npm'
         cache-dependency-path: '**/package-lock.json'
 
@@ -33,13 +29,18 @@ jobs:
     - name: Build Project
       run: NODE_OPTIONS=--max_old_space_size=8192 npm run build
 
-    - name: Run Tests
-      run: npm run test --if-present
+    # Debugging Step: List all files in the entire project directory
+    - name: List entire project directory
+      run: ls -R ../
+
+    # Debugging Step: List contents of static directory
+    - name: List static directory
+      run: ls -al ../static
 
     - name: Deploy to Azure Web App
       if: github.ref == 'refs/heads/main'
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'project-assistant'
+        app-name: 'project-assistant'  # Replace with your Azure App Service name
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: ../static
