@@ -1,12 +1,11 @@
-import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
-import { resolve } from 'path';
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: resolve(__dirname, '../static'), // Set the absolute path
+    outDir: '../static',
     emptyOutDir: true,
     sourcemap: true
   },
@@ -16,4 +15,4 @@ export default defineConfig({
       '/chat': 'http://localhost:5000'
     }
   }
-});
+})

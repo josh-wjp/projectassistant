@@ -1,58 +1,34 @@
-name: Build and Deploy Frontend
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Build Frontend
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x, 21.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
     - uses: actions/checkout@v3
-
-    # Debugging Step: Verify if package-lock.json exists in the frontend directory before setting up Node.js
-    - name: Verify package-lock.json exists
-      working-directory: projectassistant
-      run: ls -al frontend/package-lock.json || echo "package-lock.json not found!"
-
-    # Set up Node.js for the project
-    - name: Set up Node.js
+    - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
-        node-version: 18.x
+        node-version: ${{ matrix.node-version }}
         cache: 'npm'
-
-    # Install Dependencies from 'projectassistant/frontend' directory
-    - name: Install Dependencies
-      working-directory: projectassistant/frontend
-      run: npm ci
-
-    # Build the Project from 'projectassistant/frontend' directory
-    - name: Build Project
-      working-directory: projectassistant/frontend
-      run: |
-        echo "Starting build process..."
-        NODE_OPTIONS=--max_old_space_size=8192 npm run build
-        echo "Build process completed."
-
-    # Debugging Step: List the entire project directory after the build
-    - name: List entire project directory after build
-      working-directory: projectassistant
-      run: ls -R
-
-    # Debugging Step: Verify that 'static' directory exists
-    - name: List static directory contents
-      working-directory: projectassistant
-      run: ls -al static || echo "Static directory not found!"
-
-    # Deploy the static directory to Azure Web App
-    - name: Deploy to Azure Web App
-      if: github.ref == 'refs/heads/main'
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: 'project-assistant'  # Replace with your Azure App Service name
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: projectassistant/static
+        cache-dependency-path: '**/package-lock.json'
+    - run: npm ci
+    - run: NODE_OPTIONS=--max_old_space_size=8192 npm run build --if-present
+    - run: npm run test --if-present
