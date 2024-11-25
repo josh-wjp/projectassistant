@@ -38,11 +38,15 @@ jobs:
     - name: List Static Directory Contents
       run: ls -al ../static || echo "Static directory not found!"
 
-    # Create a deployment package (zip the static folder)
+    # Create a deployment package (zip the contents of the static folder)
     - name: Create deployment zip
       run: |
-        cd ..
-        zip -r static.zip static
+        cd ../static
+        zip -r ../static.zip .
+
+    # Debugging Step: Verify the contents of the deployment zip
+    - name: List contents of deployment zip
+      run: unzip -l ../static.zip
 
     # Deploy the zip to Azure Web App
     - name: Deploy to Azure Web App
@@ -51,4 +55,4 @@ jobs:
       with:
         app-name: 'project-assistant'  # Replace with your Azure App Service name
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: static.zip
+        package: ../static.zip
