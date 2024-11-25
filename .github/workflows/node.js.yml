@@ -13,13 +13,16 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    # Set up Node.js in the context of 'projectassistant/frontend'
+    # Debugging Step: Verify if package-lock.json exists in the frontend directory before setting up Node.js
+    - name: Verify package-lock.json exists
+      run: ls -al projectassistant/frontend/package-lock.json || echo "package-lock.json not found!"
+
+    # Set up Node.js in the context of 'projectassistant/frontend' (simplified cache setup for now)
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: 18.x
         cache: 'npm'
-        cache-dependency-path: 'projectassistant/frontend/package-lock.json'
 
     # Install Dependencies from 'projectassistant/frontend' directory
     - name: Install Dependencies
@@ -42,7 +45,7 @@ jobs:
     - name: List static directory contents
       run: ls -al projectassistant/static || echo "Static directory not found!"
 
-    # Deploy the static directory to Azure Web App from 'projectassistant/static'
+    # Deploy the static directory to Azure Web App
     - name: Deploy to Azure Web App
       if: github.ref == 'refs/heads/main'
       uses: azure/webapps-deploy@v2
