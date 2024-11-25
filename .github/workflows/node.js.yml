@@ -9,42 +9,44 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
 
     steps:
     - uses: actions/checkout@v3
 
+    # Set up Node.js in the context of 'projectassistant/frontend'
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: 18.x
         cache: 'npm'
-        cache-dependency-path: '**/package-lock.json'
+        cache-dependency-path: 'projectassistant/frontend/package-lock.json'
 
+    # Install Dependencies from 'projectassistant/frontend' directory
     - name: Install Dependencies
+      working-directory: projectassistant/frontend
       run: npm ci
 
+    # Build the Project from 'projectassistant/frontend' directory
     - name: Build Project
+      working-directory: projectassistant/frontend
       run: |
         echo "Starting build process..."
         NODE_OPTIONS=--max_old_space_size=8192 npm run build
         echo "Build process completed."
 
-    # Debugging Step: List the entire project directory to see if static was created anywhere
+    # Debugging Step: List the entire project directory after the build
     - name: List entire project directory after build
-      run: ls -R ../
+      run: ls -R projectassistant
 
-    # Debugging Step: Verify that static directory exists at root level
+    # Debugging Step: Verify that 'static' directory exists
     - name: List static directory contents
-      run: ls -al ../static || echo "Static directory not found!"
+      run: ls -al projectassistant/static || echo "Static directory not found!"
 
-    # Deploy the static directory to Azure Web App
+    # Deploy the static directory to Azure Web App from 'projectassistant/static'
     - name: Deploy to Azure Web App
       if: github.ref == 'refs/heads/main'
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'project-assistant'  # Replace with your Azure App Service name
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ../static
+        package: projectassistant/static
