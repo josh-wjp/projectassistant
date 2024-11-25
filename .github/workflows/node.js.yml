@@ -9,9 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     strategy:
       matrix:
         node-version: [18.x]
@@ -29,30 +26,32 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
-      # Install dependencies
+      # Install dependencies in 'frontend' folder
       - name: Install dependencies
         run: npm ci
+        working-directory: projectassistant/frontend
 
-      # Build the project
+      # Build the project in 'frontend' folder
       - name: Build project
         run: NODE_OPTIONS=--max_old_space_size=8192 npm run build
+        working-directory: projectassistant/frontend
 
-      # Verify static directory is created successfully
+      # Verify static directory exists
       - name: Verify static directory
-        run: ls -al ../static || echo "Static directory not found!"
+        run: ls -al projectassistant/static || echo "Static directory not found!"
 
-      # Create zip for deployment
+      # Create a deployment zip from 'static' folder
       - name: Create deployment zip
         run: |
-          cd ../static
-          zip -r ../static.zip .
+          cd projectassistant/static
+          zip -r ../../static.zip .
 
       # Upload the deployment package as an artifact
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
         with:
           name: frontend-app
-          path: ../static.zip
+          path: static.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -70,9 +69,9 @@ jobs:
         with:
           name: frontend-app
 
-      # Unzip the downloaded artifact
+      # Unzip the downloaded artifact in 'projectassistant' directory
       - name: Unzip artifact for deployment
-        run: unzip static.zip
+        run: unzip static.zip -d projectassistant
 
       # Login to Azure using Service Principal
       - name: Login to Azure using Service Principal
@@ -91,4 +90,4 @@ jobs:
         with:
           app-name: 'project-assistant'
           slot-name: 'production'
-          package: .
+          package: projectassistant
