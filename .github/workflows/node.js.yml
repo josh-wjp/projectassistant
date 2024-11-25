@@ -25,32 +25,32 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
-      # Install dependencies in 'frontend' folder
+      # Install dependencies - refer to the correct folder directly
       - name: Install dependencies
         run: npm ci
-        working-directory: projectassistant/frontend
+        working-directory: ./projectassistant/frontend
 
-      # Build the project in 'frontend' folder
+      # Build the project - refer to the correct folder directly
       - name: Build project
         run: NODE_OPTIONS=--max_old_space_size=8192 npm run build
-        working-directory: projectassistant/frontend
+        working-directory: ./projectassistant/frontend
 
       # Verify static directory exists
       - name: Verify static directory
-        run: ls -al projectassistant/static || echo "Static directory not found!"
+        run: ls -al ./projectassistant/static || echo "Static directory not found!"
 
-      # Create a deployment zip from 'static' folder
+      # Create a deployment zip from the 'static' folder
       - name: Create deployment zip
         run: |
           cd projectassistant/static
-          zip -r ../static.zip .
+          zip -r ../../static.zip .
 
       # Upload the deployment package as an artifact
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
         with:
           name: frontend-app
-          path: projectassistant/static.zip
+          path: ./projectassistant/static.zip
 
   deploy:
     runs-on: ubuntu-latest
