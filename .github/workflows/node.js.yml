@@ -15,31 +15,34 @@ jobs:
 
     steps:
       # Checkout the repository
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       # Set up Node.js environment
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache-dependency-path: 'projectassistant/frontend/package-lock.json'
 
-      # Install dependencies - refer to the correct folder directly
+      # Install dependencies in 'frontend' folder
       - name: Install dependencies
         run: npm ci
-        working-directory: ./projectassistant/frontend
+        # Explicitly specify the path to the 'frontend' folder
+        working-directory: projectassistant/frontend
 
-      # Build the project - refer to the correct folder directly
+      # Build the project
       - name: Build project
         run: NODE_OPTIONS=--max_old_space_size=8192 npm run build
-        working-directory: ./projectassistant/frontend
+        # Specify the path to the 'frontend' folder explicitly
+        working-directory: projectassistant/frontend
 
-      # Verify static directory exists
+      # Verify the static directory exists
       - name: Verify static directory
-        run: ls -al ./projectassistant/static || echo "Static directory not found!"
+        run: ls -al projectassistant/static || echo "Static directory not found!"
 
-      # Create a deployment zip from the 'static' folder
+      # Create a deployment zip from the static folder
       - name: Create deployment zip
         run: |
           cd projectassistant/static
@@ -50,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: frontend-app
-          path: ./projectassistant/static.zip
+          path: projectassistant/static.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -59,7 +62,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write  # This is required for requesting the JWT
+      id-token: write  # Required for requesting the JWT
 
     steps:
       # Download the artifact from the build job
@@ -79,7 +82,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       # Set Azure Subscription explicitly
-      - name: Set Azure Subscription explicitly
+      - name: Set Azure Subscription
         run: az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       # Deploy to Azure Web App
