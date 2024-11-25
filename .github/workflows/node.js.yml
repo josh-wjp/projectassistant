@@ -24,31 +24,27 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache-dependency-path: 'projectassistant/frontend/package-lock.json'
 
-      # Install dependencies in the 'frontend' folder
+      # Install dependencies in 'projectassistant/frontend'
       - name: Install dependencies
         run: npm ci
         working-directory: projectassistant/frontend
 
-      # Build the project in the 'frontend' folder
+      # Build the project in 'projectassistant/frontend'
       - name: Build project
         run: NODE_OPTIONS=--max_old_space_size=8192 npm run build
         working-directory: projectassistant/frontend
 
-      # Verify that the static directory has been created successfully
+      # Verify that the 'static' directory has been created successfully
       - name: Verify static directory
         run: ls -al projectassistant/static || echo "Static directory not found!"
 
-      # Create a zip file for deployment from the 'static' folder, without changing directories
+      # Create a zip file for deployment from the 'static' folder
       - name: Create deployment zip
         run: |
           cd projectassistant/static
-          zip -r ../../static.zip ./*
-
-      # Verify contents of ZIP file to make sure everything is included
-      - name: Verify ZIP contents
-        run: unzip -l static.zip
+          zip -r ../../static.zip .
 
       # Upload the deployment package as an artifact for later use
       - name: Upload artifact for deployment jobs
@@ -73,7 +69,7 @@ jobs:
         with:
           name: frontend-app
 
-      # Unzip the downloaded artifact to check content
+      # Unzip the downloaded artifact
       - name: Unzip artifact for deployment
         run: unzip static.zip -d projectassistant/static
 
@@ -87,12 +83,12 @@ jobs:
       - name: Set Azure Subscription explicitly
         run: az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # Deploy to Azure Web App with the 'clean' flag to ensure the directory is clean
+      # Deploy to Azure Web App with the 'clean' flag to ensure no conflicts
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
         with:
           app-name: 'project-assistant'
-          slot-name: 'dev'  # Since you are testing in the dev environment
+          slot-name: 'dev'  # Set to 'dev' since you mentioned creating a dev environment
           package: projectassistant/static
           clean: true  # Clean the destination before deploying to avoid conflicts
