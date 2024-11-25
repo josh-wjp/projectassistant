@@ -36,13 +36,13 @@ jobs:
 
     # Debugging Step: Verify that static directory exists after the build
     - name: List Static Directory Contents
-      run: ls -al ./static || echo "Static directory not found!"
+      run: ls -al ../static || echo "Static directory not found!"
 
     # Create a deployment package (zip the contents of the static folder)
     - name: Create deployment zip
       run: |
-        cd ./static
-        zip -r ./static.zip .
+        cd ../static
+        zip -r ../static.zip .
 
     # Debugging Step: Verify the contents of the deployment zip
     - name: List contents of deployment zip
