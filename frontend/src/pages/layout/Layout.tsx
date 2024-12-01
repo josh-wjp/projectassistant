@@ -96,9 +96,16 @@ const Layout = () => {
       </Stack>
     </header>
     <Outlet />
-    {/* New Footer Section */}
     <footer className={styles.footer}>
-      <p>Footer Content Here - Example Text for Your Layout</p>
+    <p>Support us with a donation</p>
+     <a
+        href="https://donate.stripe.com/9AQ6rs9Vf3IR7N6dQQ"
+        className={styles.donateButton}
+        target="_blank"
+        rel="noopener noreferrer"
+     >
+        Donate
+     </a>
     </footer>
     <Dialog
       onDismiss={handleSharePanelDismiss}

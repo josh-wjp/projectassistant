@@ -90,5 +90,5 @@ jobs:
         id: deploy-to-webapp
         with:
           app-name: 'project-assistant'
-          slot-name: 'production'
+          slot-name: 'dev'
           package: .
