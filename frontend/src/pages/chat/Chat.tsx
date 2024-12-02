@@ -199,7 +199,7 @@ const Chat = () => {
     if (!conversationId) {
       conversation = {
         id: conversationId ?? uuid(),
-        title: question as string,
+        title: typeof question === 'string' ? question : JSON.stringify(question), //Force String
         messages: [userMessage],
         date: new Date().toISOString()
       }
