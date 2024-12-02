@@ -282,20 +282,27 @@ const Chat = () => {
           errorMessage = result.error
         }
 
-        errorMessage = parseErrorMessage(errorMessage)
+      try {
+          errorMessage = parseErrorMessage(errorMessage);
+        } catch (err) {
+            console.error('Error parsing error message:', err);
+            errorMessage = 'An error occurred while processing the error message.';
+        }
 
         let errorChatMsg: ChatMessage = {
           id: uuid(),
           role: ERROR,
-          content: errorMessage,
-          date: new Date().toISOString()
-        }
+            content: errorMessage,
+            date: new Date().toISOString(),
+        };
+
         conversation.messages.push(errorChatMsg)
         appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: conversation })
         setMessages([...messages, errorChatMsg])
       } else {
         setMessages([...messages, userMessage])
       }
+
     } finally {
       setIsLoading(false)
       setShowLoadingMessage(false)
