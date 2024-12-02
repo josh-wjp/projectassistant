@@ -273,35 +273,42 @@ const Chat = () => {
         setMessages([...messages, toolMessage, assistantMessage])
       }
     } catch (e) {
-      if (!abortController.signal.aborted) {
-        let errorMessage =
-          'An error occurred. Please try again. If the problem persists, please contact the site administrator.'
-        if (result.error?.message) {
-          errorMessage = result.error.message
-        } else if (typeof result.error === 'string') {
-          errorMessage = result.error
-        }
+  if (!abortController.signal.aborted) {
+    let errorMessage =
+      "An error occurred. Please try again. If the problem persists, please contact the site administrator.";
 
-      try {
-          errorMessage = parseErrorMessage(errorMessage);
-        } catch (err) {
-            console.error('Error parsing error message:', err);
-            errorMessage = 'An error occurred while processing the error message.';
-        }
+    if (result.error?.message) {
+      errorMessage = String(result.error.message);
+    } else if (typeof result.error === "string") {
+      errorMessage = result.error;
+    }
 
-        let errorChatMsg: ChatMessage = {
-          id: uuid(),
-          role: ERROR,
-            content: errorMessage,
-            date: new Date().toISOString(),
-        };
+    try {
+      console.log("Before parsing error message:", errorMessage);
+      errorMessage = parseErrorMessage(errorMessage);
+      console.log("After parsing error message:", errorMessage);
+    } catch (err) {
+      console.error("Error in parseErrorMessage:", err);
+      errorMessage = "An error occurred while processing the error message.";
+    }
 
-        conversation.messages.push(errorChatMsg)
-        appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: conversation })
-        setMessages([...messages, errorChatMsg])
-      } else {
-        setMessages([...messages, userMessage])
-      }
+    const errorChatMsg: ChatMessage = {
+      id: uuid(),
+      role: ERROR,
+      content: errorMessage,
+      date: new Date().toISOString(),
+    };
+
+    if (!conversation.messages) {
+      conversation.messages = [];
+    }
+    conversation.messages.push(errorChatMsg);
+
+    appStateContext?.dispatch({ type: "UPDATE_CURRENT_CHAT", payload: conversation });
+    setMessages([...messages, errorChatMsg]);
+  } else {
+    setMessages([...messages, userMessage]);
+  }
 
     } finally {
       setIsLoading(false)
