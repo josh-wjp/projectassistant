@@ -12,7 +12,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 import styles from './Chat.module.css'
-import WJPLogo2 from '../../assets/WJP-Logo-Square.png'
+import WJPLogo2 from '../../assets/WJP-Logo-Large-Wide.png'
 import { XSSAllowTags } from '../../constants/sanatizeAllowables'
 
 import {
