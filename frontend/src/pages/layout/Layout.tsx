@@ -74,66 +74,78 @@ const Layout = () => {
   }, [])
 
   return (
-    <div className={styles.layout}>
-      <header className={styles.header} role={'banner'}>
-        <Stack horizontal verticalAlign="center" horizontalAlign="space-between">
-          <Stack horizontal verticalAlign="center">
-            <img src={logo} className={styles.headerIcon} aria-hidden="true" alt="" />
-            <Link to="/" className={styles.headerTitleContainer}>
-              <h1 className={styles.headerTitle}>{ui?.title}</h1>
-            </Link>
-          </Stack>
-          <Stack horizontal tokens={{ childrenGap: 4 }} className={styles.shareButtonContainer}>
-            {appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && ui?.show_chat_history_button !== false && (
+  <div className={styles.layout}>
+    <header className={styles.header} role={'banner'}>
+      <Stack horizontal verticalAlign="center" horizontalAlign="space-between">
+        <Stack horizontal verticalAlign="center">
+          <img src={logo} className={styles.headerIcon} aria-hidden="true" alt="" />
+          <Link to="/" className={styles.headerTitleContainer}>
+            <h1 className={styles.headerTitle}>{ui?.title}</h1>
+          </Link>
+        </Stack>
+        <Stack horizontal tokens={{ childrenGap: 4 }} className={styles.shareButtonContainer}>
+          {appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured &&
+            ui?.show_chat_history_button !== false && (
               <HistoryButton
                 onClick={handleHistoryClick}
                 text={appStateContext?.state?.isChatHistoryOpen ? hideHistoryLabel : showHistoryLabel}
               />
             )}
-            {ui?.show_share_button && <ShareButton onClick={handleShareClick} text={shareLabel} />}
-          </Stack>
+          {ui?.show_share_button && <ShareButton onClick={handleShareClick} text={shareLabel} />}
         </Stack>
-      </header>
-      <Outlet />
-      <Dialog
-        onDismiss={handleSharePanelDismiss}
-        hidden={!isSharePanelOpen}
-        styles={{
-          main: [
-            {
-              selectors: {
-                ['@media (min-width: 480px)']: {
-                  maxWidth: '600px',
-                  background: '#FFFFFF',
-                  boxShadow: '0px 14px 28.8px rgba(0, 0, 0, 0.24), 0px 0px 8px rgba(0, 0, 0, 0.2)',
-                  borderRadius: '8px',
-                  maxHeight: '200px',
-                  minHeight: '100px'
-                }
+      </Stack>
+    </header>
+    <Outlet />
+    <footer className={styles.footer}>
+    <p>Support us with a donation</p>
+     <a
+        href="https://donate.stripe.com/9AQ6rs9Vf3IR7N6dQQ"
+        className={styles.donateButton}
+        target="_blank"
+        rel="noopener noreferrer"
+     >
+        Donate
+     </a>
+    </footer>
+    <Dialog
+      onDismiss={handleSharePanelDismiss}
+      hidden={!isSharePanelOpen}
+      styles={{
+        main: [
+          {
+            selectors: {
+              ['@media (min-width: 480px)']: {
+                maxWidth: '600px',
+                background: '#FFFFFF',
+                boxShadow: '0px 14px 28.8px rgba(0, 0, 0, 0.24), 0px 0px 8px rgba(0, 0, 0, 0.2)',
+                borderRadius: '8px',
+                maxHeight: '200px',
+                minHeight: '100px'
               }
             }
-          ]
-        }}
-        dialogContentProps={{
-          title: 'Share the web app',
-          showCloseButton: true
-        }}>
-        <Stack horizontal verticalAlign="center" style={{ gap: '8px' }}>
-          <TextField className={styles.urlTextBox} defaultValue={window.location.href} readOnly />
-          <div
-            className={styles.copyButtonContainer}
-            role="button"
-            tabIndex={0}
-            aria-label="Copy"
-            onClick={handleCopyClick}
-            onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? handleCopyClick() : null)}>
-            <CopyRegular className={styles.copyButton} />
-            <span className={styles.copyButtonText}>{copyText}</span>
-          </div>
-        </Stack>
-      </Dialog>
-    </div>
-  )
+          }
+        ]
+      }}
+      dialogContentProps={{
+        title: 'Share the web app',
+        showCloseButton: true
+      }}>
+      <Stack horizontal verticalAlign="center" style={{ gap: '8px' }}>
+        <TextField className={styles.urlTextBox} defaultValue={window.location.href} readOnly />
+        <div
+          className={styles.copyButtonContainer}
+          role="button"
+          tabIndex={0}
+          aria-label="Copy"
+          onClick={handleCopyClick}
+          onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? handleCopyClick() : null)}>
+          <CopyRegular className={styles.copyButton} />
+          <span className={styles.copyButtonText}>{copyText}</span>
+        </div>
+      </Stack>
+    </Dialog>
+  </div>
+)
 }
 
 export default Layout
